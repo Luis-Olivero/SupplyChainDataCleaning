@@ -1,0 +1,111 @@
+﻿Supply Chain Shipment Pricing Data
+–First look at table
+SELECT *
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing`;
+
+
+–Standardized column headers
+SELECT
+ id AS unique_id,
+ project_code,
+ pq__ AS pq,
+ po___so__ AS po_so,
+ asn_dn__ AS asn_dn,
+ country,
+ managed_by AS manager,
+ fulfill_via,
+ vendor_inco_term AS vendor_id,
+ shipment_mode AS shipment_type,
+ pq_first_sent_to_client_date AS pq_client_date,
+ po_sent_to_vendor_date AS po_vendor_date,
+ scheduled_delivery_date AS scheduled_appointment,
+ delivered_to_client_date AS delivered_date,
+ delivery_recorded_date AS recorded_delivery_date,
+ product_group,
+ sub_classification,
+ vendor,
+ item_description,
+ molecule_test_type,
+ brand,
+ dosage,
+ dosage_form,
+ unit_of_measure__per_pack_ AS unit_per_pack,
+ line_item_quantity,
+ line_item_value,
+ pack_price,
+ unit_price,
+ manufacturing_site,
+ first_line_designation,
+ weight__kilograms_ AS weight_kilograms,
+ freight_cost__usd_ AS freight_cost,
+ line_item_insurance__usd_ AS line_item_insurance
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing`;
+
+
+–Confirming row count vs Google Sheet file
+SELECT COUNT(*) FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`;
+        Query result = 10,324 
+        Google Sheet row count = 10,324
+
+
+-- Checking and replacing null values in shipment_type (string) 
+SELECT DISTINCT(shipment_type)
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+
+
+UPDATE `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+SET shipment_type = 'Other'
+WHERE shipment_type IS NULL;
+
+
+-- Changing Air Charter to Air (string)
+SELECT DISTINCT(shipment_type)
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+
+
+UPDATE `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+SET shipment_type = 'Air'
+WHERE shipment_type = 'Air Charter';
+
+
+-- Checking and replacing null values in dosage column (string)
+SELECT DISTINCT(dosage)
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+
+
+UPDATE `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+SET dosage = '0mg'
+WHERE dosage IS NULL;
+
+
+-- Replacing null values in line_item_insurance (float)
+SELECT DISTINCT(line_item_insurance)
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+
+
+UPDATE `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+SET line_item_insurance = IFNULL(line_item_insurance, 0.0)
+WHERE line_item_insurance IS NULL;
+
+
+-- Replacing three different strings with one in weight_kilograms column
+SELECT DISTINCT(weight_kilograms)
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+
+
+UPDATE `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+SET weight_kilograms = 'Weight not available'
+WHERE weight_kilograms = 'Weight Captured Separately'
+OR weight_kilograms LIKE 'See DN%'
+OR weight_kilograms LIKE 'See ASN%';
+
+
+-- Replacing two different strings with one in freight_cost
+SELECT DISTINCT(freight_cost)
+FROM `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+
+
+UPDATE `shipment-pricing.SupplyChainShipmentPricing.Supply Chain Shipment Pricing v1`
+SET freight_cost = 'Cost not available'
+WHERE freight_cost LIKE 'See DN%'
+OR freight_cost LIKE 'See ASN%';
